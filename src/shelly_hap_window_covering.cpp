@@ -326,6 +326,8 @@ const char *WindowCovering::StateStr(State state) {
       return "rampup";
     case State::kMoving:
       return "moving";
+    case State::kMovingToFullPos:
+      return "moveToFullPos";
     case State::kStop:
       return "stop";
     case State::kStopping:
@@ -449,6 +451,37 @@ void WindowCovering::Move(Direction dir) {
   if (dir != Direction::kNone) {
     last_move_dir_ = dir;
   }
+}
+
+bool WindowCovering::MeasurePowerAndCheckForPMError(float &power) {
+  auto *pm = (moving_dir_ == Direction::kOpen ? pm_open_ : pm_close_);
+  auto pmv = pm->GetPowerW();
+  if (pmv.ok()) {
+    power = pmv.ValueOrDie();
+  } else {
+    LOG(LL_ERROR, ("PM error"));
+    tgt_state_ = State::kError;
+    SetInternalState(State::kStop);
+    return true;
+  }
+  return false;
+}
+
+bool WindowCovering::CheckForObstacle(float power) {
+  float too_much_power = cfg_->move_power * 2.5;
+  int too_long_time = cfg_->move_time_ms * 1.5;
+  int moving_time_ms = (mgos_uptime_micros() - begin_) / 1000;
+
+  if (power > cfg_->idle_power_thr &&
+      (power > too_much_power || moving_time_ms > too_long_time)) {
+    obstruction_detected_ = true;
+    obst_char_->RaiseEvent();
+    LOG(LL_ERROR, ("Obstruction: p = %.2f t = %d", power, moving_time_ms));
+    tgt_state_ = State::kError;
+    SetInternalState(State::kStop);
+    return true;
+  }
+  return false;
 }
 
 void WindowCovering::RunOnce() {
@@ -595,28 +628,20 @@ void WindowCovering::RunOnce() {
           ((tgt_pos_ == kFullyOpen && moving_dir_ == Direction::kOpen) ||
            (tgt_pos_ == kFullyClosed && moving_dir_ == Direction::kClose));
       int moving_time_ms = (mgos_uptime_micros() - begin_) / 1000;
-      // if manually calibrated move `move_to_end_time_ms` instead of
-      // `move_time_ms`, in order to really reach the limit
-      // (Caution: this works for motors, that stop at their limit
-      // positions by themselves, only).
-      float pos_diff = moving_time_ms / (moving_to_limit_pos && cfg_->man_cal
-                                             ? move_limit_ms_per_pct_
-                                             : move_ms_per_pct_);
+
+      float pos_diff = moving_time_ms / move_ms_per_pct_;
+
       float new_cur_pos =
           (moving_dir_ == Direction::kOpen ? move_start_pos_ + pos_diff
                                            : move_start_pos_ - pos_diff);
-      auto *pm = (moving_dir_ == Direction::kOpen ? pm_open_ : pm_close_);
-      auto pmv = pm->GetPowerW();
+
       float p = -1;
-      if (pmv.ok()) {
-        p = pmv.ValueOrDie();
-      } else {
-        LOG(LL_ERROR, ("PM error"));
-        tgt_state_ = State::kError;
-        SetInternalState(State::kStop);
+      if (MeasurePowerAndCheckForPMError(p)) {
         break;
       }
+
       SetCurPos(new_cur_pos, p);
+
       float too_much_power = cfg_->move_power * cfg_->obstruction_power_coeff;
       int too_long_time = cfg_->move_time_ms * cfg_->obstruction_time_coeff;
       if (p > too_much_power) {
@@ -634,6 +659,11 @@ void WindowCovering::RunOnce() {
         SetInternalState(State::kStop);
         break;
       }
+
+      if (CheckForObstacle(p)) {
+        break;
+      }
+
       Direction want_move_dir = GetDesiredMoveDirection();
       bool reverse =
           (want_move_dir != moving_dir_ && want_move_dir != Direction::kNone);
@@ -656,6 +686,11 @@ void WindowCovering::RunOnce() {
       } else if (want_move_dir == moving_dir_) {
         // Still moving.
         break;
+      } else if (cfg_->man_cal) {
+        LOG(LL_INFO, ("Moving to full pos"));
+        // move the extra time in order to move to full position
+        SetInternalState(State::kMovingToFullPos);
+        break;
       } else {
         // We stopped moving. Reconcile target position with current,
         // pretend we wanted to be exactly where we ended up.
@@ -665,6 +700,24 @@ void WindowCovering::RunOnce() {
       }
       Move(Direction::kNone);  // Stop moving immediately to minimize error.
       SetInternalState(State::kStop);
+      break;
+    }
+    case State::kMovingToFullPos: {
+      int moving_time_ms = (mgos_uptime_micros() - begin_) / 1000;
+      int move_time_limit_pos_ms = cfg_->move_time_limit_pos_ms;
+
+      LOG(LL_INFO, ("Moving to full pos for %d, elapsed %d",
+                    (int) move_time_limit_pos_ms, moving_time_ms));
+
+      float p = -1;
+      if (MeasurePowerAndCheckForPMError(p) || CheckForObstacle(p)) {
+        break;
+      }
+
+      if (moving_time_ms >= cfg_->move_time_limit_pos_ms) {
+        Move(Direction::kNone);  // Stop moving immediately to minimize error.
+        SetInternalState(State::kStop);
+      }
       break;
     }
     case State::kStop: {
