@@ -21,7 +21,7 @@ Summary of supported devices and features
 |Power measurement|✗|✓|-|✓|✓|✗|✓|✗|-|
 |RGB(W)|✗|✗|✗|✗|✗|✗|✗|✗|✓|
 
-_✓ supported, - possible but not supported yet, ✗ not possible_  
+_✓ supported, - possible but not supported yet, ✗ not possible_
 _Switch & Co. includes lock, outlet, valve_
 
 Features that are not yet supported:
@@ -54,7 +54,7 @@ Features that are not yet supported:
 
     * Shelly Plug S: `http://A.B.C.D/ota?url=http://rojer.me/files/shelly/shelly-homekit-ShellyPlugS.zip`
 
-    * Shelly RGBW2: `http://A.B.C.D/ota?url=http://rojer.me/files/shelly/shelly-homekit-ShellyRGBW2.zip`  
+    * Shelly RGBW2: `http://A.B.C.D/ota?url=http://rojer.me/files/shelly/shelly-homekit-ShellyRGBW2.zip`
       _Note: The Shelly must be in color mode, white mode not supported yet!_
 
   * See [here](https://github.com/mongoose-os-apps/shelly-homekit/wiki/Flashing#updating-from-stock-firmware) for detailed instructions.

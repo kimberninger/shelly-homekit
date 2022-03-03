@@ -640,7 +640,7 @@ conds:
   - when: build_vars.MODEL == "ShellyT32"
     apply:
       libs:
-        # adding bt-common enables BLE support at compile time 
+        # adding bt-common enables BLE support at compile time
         - origin: https://github.com/mongoose-os-libs/bt-common
         - origin: https://github.com/mongoose-os-libs/ethernet
       build_vars:
