@@ -202,7 +202,7 @@ HAP_STRUCT_TLV_SUPPORT(transitionEntryType, transitionItemFormat)
 const transitionItemFormat transitionEntryStructFormat = {
     .type = kHAPTLVFormatType_Struct,
     .members =
-        (const HAPStructTLVMember *const[]) {
+        (const HAPStructTLVMember *const[]){
             &transitionEntryOffsetMember,
             &transitionEntryAdjustmentFactorMember, &transitionEntryValueMember,
             &transitionEntryDurationMember, NULL},
@@ -279,9 +279,9 @@ HAP_STRUCT_TLV_SUPPORT(adjustmentMultiplierRangeType,
 const adjustmentMultiplierRangeSType adjustmentMultiplierRangeFormat = {
     .type = kHAPTLVFormatType_Struct,
     .members =
-        (const HAPStructTLVMember *const[]) {&maximumAdjustmentMultiplierMember,
-                                             &minimumAdjustmentMultiplierMember,
-                                             NULL},
+        (const HAPStructTLVMember *const[]){&maximumAdjustmentMultiplierMember,
+                                            &minimumAdjustmentMultiplierMember,
+                                            NULL},
     .callbacks = {.isValid = isValid<adjustmentMultiplierRangeType>}};
 
 const HAPStructTLVMember adjustmentMultiplierRangeMember = {
@@ -300,10 +300,9 @@ HAP_STRUCT_TLV_SUPPORT(transitionCurveConfigurationType, valueFormatType2)
 const valueFormatType2 supportCurveContainerStruct = {
     .type = kHAPTLVFormatType_Struct,
     .members =
-        (const HAPStructTLVMember *const[]) {&adjustmentCharacteristicIIDMember,
-                                             &adjustmentMultiplierRangeMember,
-                                             &supportCurveContainerMember,
-                                             NULL},
+        (const HAPStructTLVMember *const[]){&adjustmentCharacteristicIIDMember,
+                                            &adjustmentMultiplierRangeMember,
+                                            &supportCurveContainerMember, NULL},
     .callbacks = {.isValid = isValid<transitionCurveConfigurationType>}};
 
 const HAPStructTLVMember transitionCurveConfigurationMember = {
@@ -348,8 +347,8 @@ HAP_STRUCT_TLV_SUPPORT(parametersType, transitionParametersFormatType)
 const transitionParametersFormatType transitionParametersFormat = {
     .type = kHAPTLVFormatType_Struct,
     .members =
-        (const HAPStructTLVMember *const[]) {
-            &transitionIdMember, &startTimeMember, &id3Member, NULL},
+        (const HAPStructTLVMember *const[]){&transitionIdMember,
+                                            &startTimeMember, &id3Member, NULL},
     .callbacks = {.isValid = isValid<parametersType>}};
 
 const HAPStructTLVMember characteristicIIDMember = {
@@ -422,7 +421,7 @@ HAP_STRUCT_TLV_SUPPORT(transitionType, valueFormatType)
 const valueFormatType valueTypeFormat = {
     .type = kHAPTLVFormatType_Struct,
     .members =
-        (const HAPStructTLVMember *const[]) {
+        (const HAPStructTLVMember *const[]){
             &characteristicIIDMember, &unknown3Member,
             &transitionParametersMember, &unknown4Member,
             &transitionCurveConfigurationMember, &updateIntervalMember,
@@ -458,7 +457,7 @@ const HAPStructTLVMember readValueIIDMember = {
 HAP_STRUCT_TLV_SUPPORT(readTransitionType, readValueTransitionFormatType)
 const readValueTransitionFormatType readValueTransitionFormat = {
     .type = kHAPTLVFormatType_Struct,
-    .members = (const HAPStructTLVMember *const[]) {&readValueIIDMember, NULL},
+    .members = (const HAPStructTLVMember *const[]){&readValueIIDMember, NULL},
     .callbacks = {.isValid = isValid<readTransitionType>}};
 
 const HAPStructTLVMember readTransitionMember = {
@@ -500,8 +499,8 @@ HAP_STRUCT_TLV_SUPPORT(transitionControlTypeRequest, transitionControlFormat)
 const transitionControlFormat transitionControlFormatType = {
     .type = kHAPTLVFormatType_Struct,
     .members =
-        (const HAPStructTLVMember *const[]) {&readTransitionMember,
-                                             &updateTransitionMember, NULL},
+        (const HAPStructTLVMember *const[]){&readTransitionMember,
+                                            &updateTransitionMember, NULL},
     .callbacks = {.isValid = isValid<transitionControlTypeRequest>}};
 
 HAP_STRUCT_TLV_SUPPORT(supportedConfig, supportedConfigFormat)
@@ -529,8 +528,8 @@ const HAPStructTLVMember supportedConfigTypeMember = {
 const supportedConfigFormat supportedConfigFormatType = {
     .type = kHAPTLVFormatType_Struct,
     .members =
-        (const HAPStructTLVMember *const[]) {&supportedConfigIIDMember,
-                                             &supportedConfigTypeMember, NULL},
+        (const HAPStructTLVMember *const[]){&supportedConfigIIDMember,
+                                            &supportedConfigTypeMember, NULL},
     .callbacks = {.isValid = isValid<supportedConfig>}};
 
 HAP_SEQUENCE_TLV_SUPPORT(supportedConfigList, supportedConfigFormat,
@@ -585,9 +584,9 @@ HAP_STRUCT_TLV_SUPPORT(configurationStatus, updateTransitionResponseItemFormat)
 const updateTransitionResponseItemFormat valueConfigurationStatusFormat = {
     .type = kHAPTLVFormatType_Struct,
     .members =
-        (const HAPStructTLVMember *const[]) {&statusResponseIIDMember,
-                                             &statusResponseTransitionMember,
-                                             &statusResponseTimeMember, NULL},
+        (const HAPStructTLVMember *const[]){&statusResponseIIDMember,
+                                            &statusResponseTransitionMember,
+                                            &statusResponseTimeMember, NULL},
     .callbacks = {.isValid = isValid}};
 
 HAP_SEQUENCE_TLV_SUPPORT(updateTransitionResponseList,
@@ -625,9 +624,9 @@ HAP_STRUCT_TLV_SUPPORT(transitionControlTypeResponse,
 const transitionControlResponseFormat transitionControlFormatResponseType = {
     .type = kHAPTLVFormatType_Struct,
     .members =
-        (const HAPStructTLVMember *const[]) {&readTransitionResponseMember,
-                                             &updateTransitionReponseMember,
-                                             NULL},
+        (const HAPStructTLVMember *const[]){&readTransitionResponseMember,
+                                            &updateTransitionReponseMember,
+                                            NULL},
     .callbacks = {.isValid = isValid<transitionControlTypeResponse>}};
 
 template <typename T>
